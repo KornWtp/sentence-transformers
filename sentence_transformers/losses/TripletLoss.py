@@ -46,12 +46,16 @@ class TripletLoss(nn.Module):
         self.model = model
         self.distance_metric = distance_metric
         self.triplet_margin = triplet_margin
-
+        self.fc1 = nn.Linear(768, 768)
+        self.fc2 = nn.Linear(768, 768)
 
     def forward(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
         reps = [self.model(sentence_feature)['sentence_embedding'] for sentence_feature in sentence_features]
 
         rep_anchor, rep_pos, rep_neg = reps
+        rep_anchor = self.fc1(rep_anchor)
+        rep_pos = self.fc2(rep_pos)
+        rep_neg = self.fc2(rep_neg)
         distance_pos = self.distance_metric(rep_anchor, rep_pos)
         distance_neg = self.distance_metric(rep_anchor, rep_neg)
 
